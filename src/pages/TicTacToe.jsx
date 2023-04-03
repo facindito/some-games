@@ -16,6 +16,13 @@ const WINNER_COMBOS = [
   [6, 7, 8],
 ]
 
+function Winner({ winner }) {
+  if (winner === null) return null
+
+  const text = winner ? `Winner is : ${winner}` : 'Draw'
+  return <div className='text-slate-100 text-center text-xl'>{text}</div>
+}
+
 export default function TicTacToe() {
   const [board, setBoard] = useState(Array(9).fill(null))
   const [turn, setTurn] = useState(TURN.X)
@@ -32,7 +39,11 @@ export default function TicTacToe() {
     setTurn(newTurn)
 
     const newWinner = checkWinner(newBoard)
-    setWinner(newWinner)
+    if (newWinner) {
+      setWinner(newWinner)
+    } else if (checkEndGame(newBoard)) {
+      setWinner(false)
+    }
   }
 
   const checkWinner = (board) => {
@@ -51,9 +62,29 @@ export default function TicTacToe() {
     setWinner(null)
   }
 
+  const checkEndGame = (board) => {
+    return board.every((cell) => cell !== null)
+  }
   return (
     <div>
-      <div className='border border-slate-100 rounded-sm grid grid-cols-3'>
+      <h1 className='text-4xl text-center text-slate-100 mb-4'>Tic Tac Toe</h1>
+      <div className='flex justify-center items-center mb-4'>
+        <div
+          className={`border-2 border-slate-100 rounded-l-md px-4 py-1 text-slate-100 border-r-0 ${
+            turn === TURN.X && 'bg-slate-100 text-black'
+          }`}
+        >
+          X
+        </div>
+        <div
+          className={`border-2 border-slate-100 rounded-r-md px-4 py-1 text-slate-100 border-l-0 ${
+            turn === TURN.O && 'bg-slate-100 text-black'
+          }`}
+        >
+          O
+        </div>
+      </div>
+      <div className='border border-slate-100 rounded-sm grid grid-cols-3 mb-4'>
         {board.map((cell, index) => {
           return (
             <div
@@ -66,17 +97,9 @@ export default function TicTacToe() {
           )
         })}
       </div>
-      {!winner ? (
-        <div className='text-slate-100 text-center text-xl p-4'>
-          Turn is : {turn}
-        </div>
-      ) : (
-        <div className='text-slate-100 text-center text-xl p-4'>
-          Winner is : {winner}
-        </div>
-      )}
+      <Winner winner={winner} />
       <button
-        className='border-2 border-slate-100 rounded-md text-slate-100 text-center text-xl p-2 w-full'
+        className='border-2 border-slate-100 rounded-md text-slate-100 text-center text-xl p-2 w-full mt-4'
         onClick={resetGame}
       >
         Reset
