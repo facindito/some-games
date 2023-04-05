@@ -23,10 +23,33 @@ function Winner({ winner }) {
   return <div className='text-slate-100 text-center text-xl'>{text}</div>
 }
 
+const saveGameStore = ({ board, turn }) => {
+  localStorage.setItem('board', JSON.stringify(board))
+  localStorage.setItem('turn', turn)
+}
+const resetGameStore = () => {
+  localStorage.removeItem('board')
+  localStorage.removeItem('turn')
+  localStorage.removeItem('winner')
+}
+
+const winnerGameStore = ({ winner }) => {
+  localStorage.setItem('winner', JSON.stringify(winner))
+}
+
 export default function TicTacToe() {
-  const [board, setBoard] = useState(Array(9).fill(null))
-  const [turn, setTurn] = useState(TURN.X)
-  const [winner, setWinner] = useState(null)
+  const [board, setBoard] = useState(() => {
+    const boardStore = localStorage.getItem('board')
+    return boardStore ? JSON.parse(boardStore) : Array(9).fill(null)
+  })
+  const [turn, setTurn] = useState(() => {
+    const turnStore = localStorage.getItem('turn')
+    return turnStore ?? TURN.X
+  })
+  const [winner, setWinner] = useState(() => {
+    const winnerStore = localStorage.getItem('winner')
+    return JSON.parse(winnerStore)
+  })
 
   const updateBoard = (index) => {
     if (board[index] || winner) return
@@ -38,11 +61,15 @@ export default function TicTacToe() {
     const newTurn = turn === TURN.X ? TURN.O : TURN.X
     setTurn(newTurn)
 
+    saveGameStore({ board: newBoard, turn: newTurn })
+
     const newWinner = checkWinner(newBoard)
     if (newWinner) {
       setWinner(newWinner)
+      winnerGameStore({ winner: newWinner })
     } else if (checkEndGame(newBoard)) {
       setWinner(false)
+      winnerGameStore({ winner: false })
     }
   }
 
@@ -60,6 +87,8 @@ export default function TicTacToe() {
     setBoard(Array(9).fill(null))
     setTurn(TURN.X)
     setWinner(null)
+
+    resetGameStore()
   }
 
   const checkEndGame = (board) => {
@@ -70,15 +99,15 @@ export default function TicTacToe() {
       <h1 className='text-4xl text-center text-slate-100 mb-4'>Tic Tac Toe</h1>
       <div className='flex justify-center items-center mb-4'>
         <div
-          className={`border-2 border-slate-100 rounded-l-md px-4 py-1 text-slate-100 border-r-0 ${
-            turn === TURN.X && 'bg-slate-100 text-black'
+          className={`border-2 border-slate-100 rounded-l-md px-4 py-1 border-r-0 ${
+            turn === TURN.X ? 'bg-slate-100 text-black' : 'text-slate-100'
           }`}
         >
           X
         </div>
         <div
-          className={`border-2 border-slate-100 rounded-r-md px-4 py-1 text-slate-100 border-l-0 ${
-            turn === TURN.O && 'bg-slate-100 text-black'
+          className={`border-2 border-slate-100 rounded-r-md px-4 py-1 border-l-0 ${
+            turn === TURN.O ? 'bg-slate-100 text-black' : 'text-slate-100'
           }`}
         >
           O
