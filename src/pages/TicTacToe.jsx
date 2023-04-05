@@ -1,41 +1,16 @@
 import { useState } from 'react'
-
-const TURN = {
-  X: 'X',
-  O: 'O',
-}
-
-const WINNER_COMBOS = [
-  [0, 1, 2],
-  [0, 3, 6],
-  [0, 4, 8],
-  [1, 4, 7],
-  [2, 5, 8],
-  [2, 4, 6],
-  [3, 4, 5],
-  [6, 7, 8],
-]
-
-function Winner({ winner }) {
-  if (winner === null) return null
-
-  const text = winner ? `Winner is : ${winner}` : 'Draw'
-  return <div className='text-slate-100 text-center text-xl'>{text}</div>
-}
-
-const saveGameStore = ({ board, turn }) => {
-  localStorage.setItem('board', JSON.stringify(board))
-  localStorage.setItem('turn', turn)
-}
-const resetGameStore = () => {
-  localStorage.removeItem('board')
-  localStorage.removeItem('turn')
-  localStorage.removeItem('winner')
-}
-
-const winnerGameStore = ({ winner }) => {
-  localStorage.setItem('winner', JSON.stringify(winner))
-}
+import {
+  saveGameStore,
+  winnerGameStore,
+  resetGameStore,
+  comboGameStore,
+} from '../logic/tic-tac-toe/storage'
+import { checkWinner, checkEndGame } from '../logic/tic-tac-toe/board'
+import { TURN } from '../constants/tic-tac-toe'
+import Winner from '../components/tic-tac-toe/Winner'
+import Board from '../components/tic-tac-toe/Board'
+import Turn from '../components/tic-tac-toe/Turn'
+import Button from '../components/tic-tac-toe/Button'
 
 export default function TicTacToe() {
   const [board, setBoard] = useState(() => {
@@ -51,6 +26,11 @@ export default function TicTacToe() {
     return JSON.parse(winnerStore)
   })
 
+  const [combo, setCombo] = useState(() => {
+    const comboStore = localStorage.getItem('combo')
+    return JSON.parse(comboStore)
+  })
+
   const updateBoard = (index) => {
     if (board[index] || winner) return
 
@@ -63,76 +43,34 @@ export default function TicTacToe() {
 
     saveGameStore({ board: newBoard, turn: newTurn })
 
-    const newWinner = checkWinner(newBoard)
+    const { newWinner, winCombo } = checkWinner({ board: newBoard })
     if (newWinner) {
       setWinner(newWinner)
+      setCombo(winCombo)
       winnerGameStore({ winner: newWinner })
-    } else if (checkEndGame(newBoard)) {
+      comboGameStore({ combo: winCombo })
+    } else if (checkEndGame({ board: newBoard })) {
       setWinner(false)
       winnerGameStore({ winner: false })
     }
-  }
-
-  const checkWinner = (board) => {
-    for (const combo of WINNER_COMBOS) {
-      const [a, b, c] = combo
-      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        return board[a]
-      }
-    }
-    return null
   }
 
   const resetGame = () => {
     setBoard(Array(9).fill(null))
     setTurn(TURN.X)
     setWinner(null)
+    setCombo([])
 
     resetGameStore()
   }
 
-  const checkEndGame = (board) => {
-    return board.every((cell) => cell !== null)
-  }
   return (
-    <div>
+    <div className='font-game flex flex-col justify-center items-center'>
       <h1 className='text-4xl text-center text-slate-100 mb-4'>Tic Tac Toe</h1>
-      <div className='flex justify-center items-center mb-4'>
-        <div
-          className={`border-2 border-slate-100 rounded-l-md px-4 py-1 border-r-0 ${
-            turn === TURN.X ? 'bg-slate-100 text-black' : 'text-slate-100'
-          }`}
-        >
-          X
-        </div>
-        <div
-          className={`border-2 border-slate-100 rounded-r-md px-4 py-1 border-l-0 ${
-            turn === TURN.O ? 'bg-slate-100 text-black' : 'text-slate-100'
-          }`}
-        >
-          O
-        </div>
-      </div>
-      <div className='border border-slate-100 rounded-sm grid grid-cols-3 mb-4'>
-        {board.map((cell, index) => {
-          return (
-            <div
-              key={index}
-              className='w-[100px] h-[100px] border-2 border-slate-100 cursor-pointer flex items-center justify-center text-5xl text-slate-100'
-              onClick={() => updateBoard(index)}
-            >
-              {cell}
-            </div>
-          )
-        })}
-      </div>
+      <Turn turn={turn} />
+      <Board board={board} combo={combo} updateBoard={updateBoard} />
       <Winner winner={winner} />
-      <button
-        className='border-2 border-slate-100 rounded-md text-slate-100 text-center text-xl p-2 w-full mt-4'
-        onClick={resetGame}
-      >
-        Reset
-      </button>
+      <Button onClick={resetGame}>Reset</Button>
     </div>
   )
 }
