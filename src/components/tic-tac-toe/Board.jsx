@@ -8,7 +8,7 @@ export default function Board({ board, combo, updateBoard }) {
             className={`${
               combo?.includes(index) && 'bg-green-500'
             } w-[100px] h-[100px] border-2 border-slate-100 cursor-pointer flex items-center justify-center text-5xl text-slate-100`}
-            onClick={() => updateBoard(index)}
+            onClick={() => updateBoard({ index })}
           >
             {cell}
           </div>
