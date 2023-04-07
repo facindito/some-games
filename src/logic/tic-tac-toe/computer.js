@@ -1,6 +1,6 @@
 import { TURN, WINNER_COMBOS } from '../../constants/tic-tac-toe'
 
-export const ai = ({ board }) => {
+export const computer = ({ board }) => {
   const emptyIndexCell = board
     .map((cell, index) => cell === null && index)
     .filter((indexCell) => indexCell)
