@@ -2,7 +2,7 @@
 
 ## Descripción
 
-Web con algunos de los juegos más clásico como el tic-tac-toe, sudoku y otros.
+Web con algunos de los juegos más clásico como el tic-tac-toe y otros.
 
 ## Tecnologias
 
