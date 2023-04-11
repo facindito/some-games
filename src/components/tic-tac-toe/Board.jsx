@@ -1,4 +1,7 @@
-export default function Board({ board, combo, updateBoard }) {
+import { useBoard } from '../../hooks/useBoard'
+
+export default function Board() {
+  const { board, combo, updateBoard } = useBoard()
   return (
     <div className='border border-slate-100 rounded-sm grid grid-cols-3 mb-4'>
       {board.map((cell, index) => {

@@ -1,4 +1,8 @@
-export default function Winner({ winner }) {
+import { useBoard } from '../../hooks/useBoard'
+
+export default function Winner() {
+  const { winner } = useBoard()
+
   if (winner === null) return null
 
   const text = winner ? `Winner is : ${winner}` : 'Draw'
